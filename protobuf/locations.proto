@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package gridgo;
+
+option go_package = "./protobuf";
+
+service Locations {
+  // Sends a greeting
+  rpc Insert(NewLocation) returns (Empty) {}
+}
+
+// The request message containing the user's name.
+message NewLocation{
+  string Username = 1;
+  float Longitude = 2;
+  float Latitude = 3;
+}
+
+message Empty {
+}
