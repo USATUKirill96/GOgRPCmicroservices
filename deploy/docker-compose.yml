@@ -1,13 +1,27 @@
 version: "3.3"
 
+# Note: Ports 8000, 8001 and 8002 are reserved for the services
 services:
+
+  required:
+    image: alpine:latest
+    depends_on:
+      - es7
+      - db
+
+  monitoring:
+    image: alpine:latest
+    depends_on:
+      - kibana7
+      - adminer
+
   es7:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.3.1
     container_name: es7
     environment:
       - discovery.type=single-node
     ports:
-      - "127.0.0.1:8001:9200"
+      - "8003:9200"
     volumes:
       - locations-es7:/usr/share/elasticsearch
 
@@ -16,7 +30,36 @@ services:
     environment:
       ELASTICSEARCH_HOSTS: http://es7:9200/
     ports:
-      - "127.0.0.1:8002:5601"
+      - "8004:5601"
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: kek
+      POSTGRES_USER: lol
+      POSTGRES_DB: users
+    ports:
+      - "8005:5432"
+
+  db_test:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: kek
+      POSTGRES_USER: lol
+      POSTGRES_DB: users
+    ports:
+      - "8006:5432"
+
+  adminer:
+    image: adminer
+    restart: always
+    environment:
+      - ADMINER_DESIGN='nette'
+    ports:
+      - "8007:8080"
+
 
 volumes:
   locations-es7:

@@ -13,5 +13,5 @@ type Server struct {
 
 func (s *Server) Insert(_ context.Context, l *pb.NewLocation) (*pb.Empty, error) {
 	err := s.LocationService.InsertLocation(l.Username, l.Longitude, l.Latitude)
-	return nil, err
+	return &pb.Empty{}, err
 }

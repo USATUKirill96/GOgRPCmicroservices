@@ -25,24 +25,24 @@ type FakeRepository struct {
 }
 
 // Insert adds new services to the fake database by his username
-func (r *FakeRepository) Insert(username string) (*User, error) {
+func (r *FakeRepository) Insert(u User) (*User, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	// Check if services already exists
-	_, exists := r.users[username]
+	_, exists := r.users[u.Username]
 	if exists {
 		return nil, AlreadyExists
 	}
 	// Increment ID and add to storage
 	r.lastUserID += 1
-	newUser := User{Username: username, ID: r.lastUserID}
-	r.users[username] = newUser
+	u.ID = r.lastUserID
+	r.users[u.Username] = u
 
-	return &newUser, nil
+	return &u, nil
 }
 
-// Get returns a User value if exists in database
-func (r *FakeRepository) Get(username string) (*User, error) {
+// ByUsername returns a User value if exists in database
+func (r *FakeRepository) ByUsername(username string) (*User, error) {
 	user, exists := r.users[username]
 	if !exists {
 		return nil, NotFound
@@ -50,13 +50,11 @@ func (r *FakeRepository) Get(username string) (*User, error) {
 	return &user, nil
 }
 
-func (r *FakeRepository) UpdateLocation(u *User, long float32, lat float32) (*User, error) {
+func (r *FakeRepository) Update(u User) (*User, error) {
 	_, exists := r.users[u.Username]
 	if !exists {
 		return nil, NotFound
 	}
-	u.Latitude = lat
-	u.Longitude = long
-	r.users[u.Username] = *u
-	return u, nil
+	r.users[u.Username] = u
+	return &u, nil
 }

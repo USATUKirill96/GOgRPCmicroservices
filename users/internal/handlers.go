@@ -10,20 +10,20 @@ import (
 
 type UpdateLocationInput struct {
 	Username  string  `json:"username"`
-	Longitude float32 `json:"longitude"`
-	Latitude  float32 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
+	Latitude  float64 `json:"latitude"`
 }
 
-func (di UpdateLocationInput) Validate() map[string]string {
+func (input UpdateLocationInput) Validate() map[string]string {
 	errs := make(map[string]string)
 
-	if !regexp.MustCompile(`^[a-zA-Z0-9]*$`).MatchString(di.Username) {
+	if !regexp.MustCompile(`^[a-zA-Z0-9]*$`).MatchString(input.Username) {
 		errs["username"] = "Username contains forbidden characters. Only letters and numbers allowed"
 	}
-	if math.Abs(float64(di.Latitude)) > 90 {
+	if math.Abs(input.Latitude) > 90 {
 		errs["latitude"] = "Latitude is incorrect. Values within -90 and 90 allowed"
 	}
-	if math.Abs(float64(di.Longitude)) > 180 {
+	if math.Abs(input.Longitude) > 180 {
 		errs["longitude"] = "Longitude is incorrect. Values within -180 and 180 allowed"
 	}
 

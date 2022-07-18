@@ -11,7 +11,12 @@ const (
 	latitude
 )
 
-var userServiceTestUser = "UserServiceTest"
+var userServiceTestUser = User{
+	ID:        4,
+	Username:  "UserServiceTest",
+	Longitude: 4.3191,
+	Latitude:  3.4815,
+}
 
 func getFakeUserService() Service {
 	users := NewFakeRepository()
@@ -27,14 +32,14 @@ func getFakeUserService() Service {
 
 func TestUserService_UpdateLocation(t *testing.T) {
 	service := getFakeUserService()
-	coords := []float32{longitude: 31.42561, latitude: -18.24312}
+	coords := []float64{longitude: 31.42561, latitude: -18.24312}
 
-	err := service.UpdateLocation(userServiceTestUser, coords[longitude], coords[latitude])
+	err := service.UpdateLocation(userServiceTestUser.Username, coords[longitude], coords[latitude])
 	if err != nil {
 		t.Errorf("Update location: %v", err)
 	}
 
-	u, err := service.Users.Get(userServiceTestUser)
+	u, err := service.Users.ByUsername(userServiceTestUser.Username)
 	if err != nil {
 		t.Errorf("Get services: %v", err)
 	}
@@ -43,7 +48,7 @@ func TestUserService_UpdateLocation(t *testing.T) {
 	assertLocationInserted(service.Locations.(*location.FakeLocationClient), u, t)
 }
 
-func assertUserLocationUpdated(u *User, coords []float32, t *testing.T) {
+func assertUserLocationUpdated(u *User, coords []float64, t *testing.T) {
 	if u.Longitude != coords[longitude] {
 		t.Errorf("Update longitude. %v, got %v", coords[longitude], u.Longitude)
 	}

@@ -12,8 +12,8 @@ service Locations {
 // The request message containing the user's name.
 message NewLocation{
   string Username = 1;
-  float Longitude = 2;
-  float Latitude = 3;
+  double Longitude = 2;
+  double Latitude = 3;
 }
 
 message Empty {

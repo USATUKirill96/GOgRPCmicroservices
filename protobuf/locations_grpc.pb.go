@@ -18,7 +18,7 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// LocationsClient is the client API for locations service.
+// LocationsClient is the client API for Locations service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LocationsClient interface {
@@ -36,14 +36,14 @@ func NewLocationsClient(cc grpc.ClientConnInterface) LocationsClient {
 
 func (c *locationsClient) Insert(ctx context.Context, in *NewLocation, opts ...grpc.CallOption) (*Empty, error) {
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/gridgo.locations/Insert", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/gridgo.Locations/Insert", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// LocationsServer is the server API for locations service.
+// LocationsServer is the server API for Locations service.
 // All implementations must embed UnimplementedLocationsServer
 // for forward compatibility
 type LocationsServer interface {
@@ -82,7 +82,7 @@ func _Locations_Insert_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/gridgo.locations/Insert",
+		FullMethod: "/gridgo.Locations/Insert",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LocationsServer).Insert(ctx, req.(*NewLocation))
@@ -90,11 +90,11 @@ func _Locations_Insert_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-// Locations_ServiceDesc is the grpc.ServiceDesc for locations service.
+// Locations_ServiceDesc is the grpc.ServiceDesc for Locations service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Locations_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "gridgo.locations",
+	ServiceName: "gridgo.Locations",
 	HandlerType: (*LocationsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

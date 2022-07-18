@@ -8,9 +8,9 @@ import (
 )
 
 type ServiceRepository interface {
-	Get(string) (*User, error)
-	Insert(string) (*User, error)
-	UpdateLocation(*User, float32, float32) (*User, error)
+	ByUsername(string) (*User, error)
+	Insert(User) (*User, error)
+	Update(User) (*User, error)
 }
 
 type Service struct {
@@ -20,23 +20,27 @@ type Service struct {
 
 // UpdateLocation updated location of a user by its username
 // SIDE EFFECT: creates a new user if username doesn't match any existing
-// TODO: discuss risks of the side effect, possibly use a separated endpoint/service for it
-func (s Service) UpdateLocation(username string, longitude float32, latitude float32) error {
-	u, err := s.Users.Get(username)
-	if err != nil {
-		if !errors.Is(NotFound, err) {
+// TODO: discuss risks of the side effect, possibly use a separated endpoint/function for it
+func (s Service) UpdateLocation(username string, longitude, latitude float64) error {
+	u, err := s.Users.ByUsername(username)
+	if err != nil && !errors.Is(NotFound, err) {
+		return err
+	}
+
+	if u != nil { // User already exists
+		u.Longitude = longitude
+		u.Latitude = latitude
+		u, err = s.Users.Update(*u)
+		if err != nil {
 			return err
 		}
-
-		u, err = s.Users.Insert(username)
+	} else { // Need to create a new user
+		u, err = s.Users.Insert(User{Username: username, Longitude: longitude, Latitude: latitude})
 		if err != nil {
 			return err
 		}
 	}
-	_, err = s.Users.UpdateLocation(u, longitude, latitude)
-	if err != nil {
-		return err
-	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
