@@ -9,6 +9,7 @@ import (
 
 type ServiceRepository interface {
 	ByUsername(string) (*User, error)
+	ByDistance(User, int) ([]*User, error)
 	Insert(User) (*User, error)
 	Update(User) (*User, error)
 }
@@ -54,4 +55,13 @@ func (s Service) UpdateLocation(username string, longitude, latitude float64) er
 		return err
 	}
 	return nil
+}
+
+func (s Service) FindByDistance(username string, distance int) ([]*User, error) {
+	u, err := s.Users.ByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+	neighbors, err := s.Users.ByDistance(*u, distance)
+	return neighbors, err
 }

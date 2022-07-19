@@ -21,8 +21,13 @@ func main() {
 	if len(os.Args) < 2 {
 		log.Fatal("Provide version (int value)")
 	}
-	postgresUrl := fmt.Sprintf("%s?sslmode=disable", os.Getenv("POSTGRES_DB_URL"))
-	m, err := migrate.New("file://users/migrations", postgresUrl)
+	var postgresURL string
+	if len(os.Args) > 2 && os.Args[2] == "test" {
+		postgresURL = fmt.Sprintf("%s?sslmode=disable", os.Getenv("POSTGRES_DB_TEST_URL"))
+	} else {
+		postgresURL = fmt.Sprintf("%s?sslmode=disable", os.Getenv("POSTGRES_DB_URL"))
+	}
+	m, err := migrate.New(fmt.Sprintf("file://users/migrations"), postgresURL)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -49,7 +49,8 @@ func main() {
 
 	// Paths
 	r := mux.NewRouter()
-	r.HandleFunc("/", app.UpdateLocation)
+	r.HandleFunc("/update", app.UpdateLocation)
+	r.HandleFunc("/users", app.FindByDistance)
 	http.Handle("/", r)
 
 	srv := &http.Server{

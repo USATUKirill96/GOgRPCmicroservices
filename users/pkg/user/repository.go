@@ -27,6 +27,23 @@ func (r Repository) Insert(u User) (*User, error) {
 	return &u, nil
 }
 
+func (r Repository) Update(u User) (*User, error) {
+	if u.ID == 0 {
+		return nil, CannotUpdate
+	}
+
+	stmt := `
+	UPDATE app_user 
+	   SET longitude = $2, latitude = $3
+	 WHERE id = $1
+	`
+	err := r.db.QueryRow(stmt, u.ID, u.Longitude, u.Latitude).Err()
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
 func (r Repository) ByUsername(username string) (*User, error) {
 	stmt := `
 	SELECT id, username, longitude, latitude
@@ -46,19 +63,39 @@ func (r Repository) ByUsername(username string) (*User, error) {
 	return u, nil
 }
 
-func (r Repository) Update(u User) (*User, error) {
-	if u.ID == 0 {
-		return nil, CannotUpdate
-	}
-
+func (r Repository) ByDistance(tgu User, dst int) ([]*User, error) {
 	stmt := `
-	UPDATE app_user 
-	   SET longitude = $2, latitude = $3
-	 WHERE id = $1
-	`
-	err := r.db.QueryRow(stmt, u.ID, u.Longitude, u.Latitude).Err()
+	SELECT id, username, longitude, latitude 
+	  FROM (
+	SELECT  *,
+			( 3959 * acos( cos( radians($2) ) 
+			 * cos( radians( latitude ) ) 
+			 * cos( radians( longitude ) - radians( $1 ) ) 
+			 + sin( radians($2) ) 
+			 * sin( radians( latitude ) ) ) ) 
+	AS distance
+
+	FROM app_user
+	) al
+	where distance < $3 AND NOT username = $4
+	ORDER BY distance
+`
+	rows, err := r.db.Query(stmt, tgu.Longitude, tgu.Latitude, dst, tgu.Username)
 	if err != nil {
 		return nil, err
 	}
-	return &u, nil
+	defer rows.Close()
+
+	var users []*User
+
+	for rows.Next() {
+		u := &User{}
+		err = rows.Scan(&u.ID, &u.Username, &u.Longitude, &u.Latitude)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+
+	return users, nil
 }

@@ -35,6 +35,8 @@ services:
   db:
     image: postgres
     restart: always
+    volumes:
+      - users-postgres:/var/lib/postgresql
     environment:
       POSTGRES_PASSWORD: kek
       POSTGRES_USER: lol
@@ -48,7 +50,7 @@ services:
     environment:
       POSTGRES_PASSWORD: kek
       POSTGRES_USER: lol
-      POSTGRES_DB: users
+      POSTGRES_DB: users_test
     ports:
       - "8006:5432"
 
@@ -63,3 +65,4 @@ services:
 
 volumes:
   locations-es7:
+  users-postgres:

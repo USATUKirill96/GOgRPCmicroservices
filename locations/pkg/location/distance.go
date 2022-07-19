@@ -9,7 +9,7 @@ type Distance struct {
 	ToLAt   float64
 }
 
-//Meters returns distance in kilometers between two points http://en.wikipedia.org/wiki/Haversine_formula
+//Meters returns distance in meters between two points http://en.wikipedia.org/wiki/Haversine_formula
 func (d Distance) Meters() float64 {
 	// convert to radians
 	// must cast radius as float to multiply later

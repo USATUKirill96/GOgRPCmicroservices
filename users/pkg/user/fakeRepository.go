@@ -1,20 +1,16 @@
 package user
 
 import (
+	"USATUKirill96/gridgo/locations/pkg/location"
 	"sync"
 )
 
 // NewFakeRepository creates a Fake repository for testing
 func NewFakeRepository() FakeRepository {
 
-	userFixtures := map[string]User{
-		"User0": User{0, "User0", 12.4321, -28.1635},
-		"User1": User{1, "User1", 25.1628, 17.4351},
-		"User2": User{2, "User3", -45.0256, -8.4321},
-	}
 	return FakeRepository{
-		users:      userFixtures,
-		lastUserID: 2,
+		users:      make(map[string]User),
+		lastUserID: 0,
 	}
 }
 
@@ -41,6 +37,15 @@ func (r *FakeRepository) Insert(u User) (*User, error) {
 	return &u, nil
 }
 
+func (r *FakeRepository) Update(u User) (*User, error) {
+	_, exists := r.users[u.Username]
+	if !exists {
+		return nil, NotFound
+	}
+	r.users[u.Username] = u
+	return &u, nil
+}
+
 // ByUsername returns a User value if exists in database
 func (r *FakeRepository) ByUsername(username string) (*User, error) {
 	user, exists := r.users[username]
@@ -50,11 +55,18 @@ func (r *FakeRepository) ByUsername(username string) (*User, error) {
 	return &user, nil
 }
 
-func (r *FakeRepository) Update(u User) (*User, error) {
-	_, exists := r.users[u.Username]
-	if !exists {
-		return nil, NotFound
+func (r *FakeRepository) ByDistance(tgu User, dst int) ([]*User, error) {
+	var matches []*User
+	for _, u := range r.users {
+		d := location.Distance{
+			FromLon: tgu.Longitude,
+			ToLon:   u.Longitude,
+			FromLat: tgu.Latitude,
+			ToLAt:   u.Latitude,
+		}
+		if d.Meters() <= float64(dst*1000) && u.Username != tgu.Username {
+			matches = append(matches, &u)
+		}
 	}
-	r.users[u.Username] = u
-	return &u, nil
+	return matches, nil
 }

@@ -66,3 +66,50 @@ func assertLocationInserted(locations *location.FakeLocationClient, u *User, t *
 	t.Errorf("Insert location: New location is not found")
 
 }
+
+func TestService_FindByDistance(t *testing.T) {
+
+	const (
+		close1 = iota
+		close2
+		far1
+		far2
+	)
+
+	neighbors := []*User{
+		&User{0, "Close1", 5.000, 3.000}, // 96.63 km
+		&User{0, "Close2", 5.000, 4.000}, // 95.05 km
+		&User{0, "Far1", 6.000, 3.000},   // 194.4 km
+		&User{0, "Far2", 6.000, 6.000},   // 335.7 km
+	}
+
+	service := getFakeUserService()
+
+	for _, n := range neighbors {
+		_, err := service.Users.Insert(*n)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	cases := []struct {
+		distance int
+		expected []*User
+	}{
+		{50, []*User{}},
+		{100, []*User{neighbors[close1], neighbors[close2]}},
+		{200, []*User{neighbors[close1], neighbors[close2], neighbors[far1]}},
+		{400, []*User{neighbors[close1], neighbors[close2], neighbors[far1], neighbors[far2]}},
+	}
+
+	for _, tc := range cases {
+		result, err := service.FindByDistance(userServiceTestUser.Username, tc.distance)
+		if err != nil {
+			t.Error(err)
+		}
+		// TODO: make special checks if exact requested users return from service
+		if len(result) != len(tc.expected) {
+			t.Errorf("Unexpected returns. Expected: %v, got: %v", len(tc.expected), len(result))
+		}
+	}
+}
