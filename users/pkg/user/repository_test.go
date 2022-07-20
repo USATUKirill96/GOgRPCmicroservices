@@ -19,7 +19,7 @@ var fixtures = []*User{
 	&User{0, "Far2", 6.000, 6.000},   // 335.7 km
 }
 
-var run = flag.Bool("integral", false, "If integral testing required")
+var run = flag.Bool("integration", false, "If integral testing required")
 
 func NewTestDatabase() TestDatabase {
 

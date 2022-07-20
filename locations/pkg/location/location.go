@@ -1,6 +1,8 @@
 package location
 
-import "time"
+import (
+	"time"
+)
 
 type Location struct {
 	ID        string    `json:"-"`
@@ -20,7 +22,7 @@ func FromMap(m map[string]interface{}) Location {
 	l.Username = s["username"].(string)
 	l.Longitude = s["longitude"].(float64)
 	l.Latitude = s["latitude"].(float64)
-	u, _ := time.Parse("2021-09-02T11:26:18+00:00", s["updated"].(string))
+	u, _ := time.Parse(time.RFC3339, s["updated"].(string))
 	l.Updated = u
 	return l
 }

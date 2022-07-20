@@ -8,11 +8,11 @@ import (
 
 // Use https://www.movable-type.co.uk/scripts/latlong.html to check calculated distances
 
-func getFakeLocationService(locations ...Location) Service {
+func NewFakeLocationService(locations ...Location) Service {
 	repository := NewFakeRepository()
 
 	if len(locations) > 0 {
-		repository.locations = locations
+		repository.Locations = locations
 	}
 
 	service := Service{repository}
@@ -20,7 +20,7 @@ func getFakeLocationService(locations ...Location) Service {
 }
 
 func TestService_InsertLocation(t *testing.T) {
-	service := getFakeLocationService()
+	service := NewFakeLocationService()
 	var (
 		username          = "ServiceTest"
 		longitude float64 = 15.3451
@@ -34,7 +34,7 @@ func TestService_InsertLocation(t *testing.T) {
 
 	// Assert location
 	var found bool
-	for _, l := range service.Locations.(*FakeRepository).locations {
+	for _, l := range service.Locations.(*FakeRepository).Locations {
 		if l.Username == username && l.Longitude == longitude && l.Latitude == latitude {
 			found = true
 			break
@@ -59,7 +59,7 @@ func TestService_GetDistance(t *testing.T) {
 		{"3", "User1", 15.54321, -15.54321, day2},
 		{"4", "User1", 17.54321, -17.54321, day3},
 	}
-	service := getFakeLocationService(ls...)
+	service := NewFakeLocationService(ls...)
 
 	cases := []struct {
 		username string

@@ -1,9 +1,12 @@
 package location
 
 import (
+	"errors"
 	"sync"
 	"time"
 )
+
+var CouldNotInsertLocation = errors.New("insert: could not insert location")
 
 type IServiceRepository interface {
 	Insert(location Location) (Location, error)
@@ -22,17 +25,22 @@ func (s Service) InsertLocation(username string, longitude, latitude float64) er
 		Updated:   time.Now(),
 	}
 	_, err := s.Locations.Insert(l)
-	return err
+	if err != nil {
+		return CouldNotInsertLocation
+	}
+	return nil
 }
+
+var NotEnoughLocations error = errors.New("distance: not enough Locations to calculate distance")
 
 func (s Service) GetDistance(username string, after, before time.Time) (int, error) {
 	ls, err := s.Locations.Find(username, after, before)
 	if err != nil {
 		return 0, err
 	}
-	// Not enough locations to calculate distance
+	// Not enough Locations to calculate distance
 	if len(ls) < 2 {
-		return 0, nil
+		return 0, NotEnoughLocations
 	}
 
 	wg := sync.WaitGroup{}
