@@ -9,9 +9,9 @@ import (
 
 var ES7TestIndex = "users_test_1.0"
 
-func NewTestIndex() TestIndex {
+func NewTestIndex(dotenvPath string) TestIndex {
 	// Load .env
-	err := godotenv.Load("./../../.env")
+	err := godotenv.Load(dotenvPath)
 	if err != nil {
 		log.Fatal(err)
 	}

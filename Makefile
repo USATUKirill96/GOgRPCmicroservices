@@ -11,3 +11,9 @@ run-users:
 
 migrate-users-up:
 	go run tools/migrate/migrate.go up
+
+test:
+	go test -v ./...
+
+test-integration:
+	go test -v ./... --tags=integration

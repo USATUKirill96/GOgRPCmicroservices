@@ -1,3 +1,5 @@
+//go:build !integration
+
 package location
 
 import (
@@ -75,7 +77,7 @@ func TestService_GetDistance(t *testing.T) {
 
 	for _, tc := range cases {
 		distance, err := service.GetDistance(tc.username, tc.after, tc.before)
-		if err != nil {
+		if err != nil && tc.expected != 0 {
 			t.Error(err)
 		}
 		if distance != tc.expected {

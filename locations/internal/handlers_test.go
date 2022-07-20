@@ -1,3 +1,5 @@
+//go:build !integration
+
 package internal
 
 import (
@@ -48,7 +50,7 @@ func TestApplication_GetDistance_Correct(t *testing.T) {
 	}
 	response := make(map[string]interface{})
 	json.NewDecoder(w.Body).Decode(&response)
-	if response["distance"] != 773 {
+	if response["distance"] != float64(773) {
 		t.Errorf("Value doesn't match. Expected 773, got %v", response["distance"])
 	}
 }

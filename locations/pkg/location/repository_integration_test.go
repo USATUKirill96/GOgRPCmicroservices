@@ -1,8 +1,9 @@
+//go:build integration
+
 package location
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"github.com/elastic/go-elasticsearch/v7/esutil"
 	"io"
@@ -11,8 +12,6 @@ import (
 	"testing"
 	"time"
 )
-
-var run = flag.Bool("integration", false, "If integral testing required")
 
 func assertLocations(l1, l2 Location) (string, bool) {
 	formatError := func(f1, f2 interface{}) string {
@@ -35,12 +34,7 @@ func assertLocations(l1, l2 Location) (string, bool) {
 
 func TestRepository_Insert(t *testing.T) {
 
-	if !*run {
-		fmt.Println("Skipping TestRepository_Insert")
-		return
-	}
-
-	ti := NewTestIndex()
+	ti := NewTestIndex("./../../../.env")
 	r := ti.NewRepository()
 	defer ti.TearDown()
 
@@ -108,12 +102,7 @@ func TestRepository_Insert(t *testing.T) {
 
 func TestRepository_Find(t *testing.T) {
 
-	if !*run {
-		fmt.Println("Skipping TestRepository_Find")
-		return
-	}
-
-	ti := NewTestIndex()
+	ti := NewTestIndex("./../../../.env")
 	r := ti.NewRepository()
 	defer ti.TearDown()
 
