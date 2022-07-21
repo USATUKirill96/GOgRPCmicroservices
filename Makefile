@@ -17,3 +17,6 @@ test:
 
 test-integration:
 	go test -v ./... --tags=integration
+
+dev-services:
+	docker-compose -f deploy/docker-compose.yml up required monitoring -d
