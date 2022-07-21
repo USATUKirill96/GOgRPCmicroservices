@@ -54,26 +54,26 @@ func (app Application) FindByDistance(w http.ResponseWriter, r *http.Request) {
 	i, errrs := ParseFindByDistanceInput(r)
 	if len(errrs) != 0 {
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]interface{}{"errrs": errrs})
+		json.NewEncoder(w).Encode(map[string]interface{}{"errors": errrs})
 		return
 	}
 
 	errrs = i.validate()
 	if len(errrs) != 0 {
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]interface{}{"errrs": errrs})
+		json.NewEncoder(w).Encode(map[string]interface{}{"errors": errrs})
 		return
 	}
 	users, err := app.UserService.FindByDistance(i.Username, i.Distance)
 	if err != nil {
 		if errors.Is(err, user.NotFound) {
 			w.WriteHeader(http.StatusNotFound)
-			json.NewEncoder(w).Encode(map[string]interface{}{"errrs": "User doesn't exist"})
+			json.NewEncoder(w).Encode(map[string]interface{}{"errors": "User doesn't exist"})
 			return
 		}
 		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]interface{}{"errrs": "Internal error. Please try again later"})
+		json.NewEncoder(w).Encode(map[string]interface{}{"errors": "Internal error. Please try again later"})
 		return
 	}
 	var res []string

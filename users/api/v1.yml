@@ -1,0 +1,136 @@
+openapi: 3.0.0
+
+info:
+  title: User service api
+  version: '1.0'
+servers:
+  - url: 'http://localhost:8000'
+    description: Development
+
+tags:
+  - name: users
+  - name: update
+
+paths:
+  /users/:
+    get:
+      summary: Get a list of users in the specified radius, excluding the target user
+      tags:
+        - users
+      parameters:
+        - in: query
+          name: username
+          description: 4-16 symbols (a-zA-Z0-9 symbols are acceptable)
+          required: true
+          schema:
+            type: string
+            example: "User1"
+
+        - in: query
+          name: distance
+          description: radius (kilometers) of search area
+          required: true
+          schema:
+            type: integer
+            example: 150
+
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                properties:
+                  result:
+                    type: array
+                    items:
+                      type: string
+                      example: "User1"
+
+        '400':
+          description: Incorrect input
+          content:
+            application/json:
+              schema:
+                properties:
+                  errors:
+                    description: all properties are optional, and will be shown depending which field contains the error
+                    required:
+                      - ...
+                    properties:
+                      username:
+                        type: string
+                        description: what is incorrect about the username
+                        example: Username contains forbidden characters. Only letters and numbers allowed
+                      distance:
+                        type: string
+                        description: what is incorrect about the distance
+                        example: Distance must be an integer larger than zero
+
+        '404':
+          description: Cannot find user
+          content:
+            application/json:
+              schema:
+                properties:
+                  errors:
+                    type: string
+                    example: user doesn't exist
+
+  /update/:
+    post:
+      summary: Update a user's location
+      tags:
+        - update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                username:
+                  type: string
+                  description: 4-16 symbols (a-zA-Z0-9 symbols are acceptable)
+                  example: "User1"
+                longitude:
+                  description: float64, range -180...180
+                  type: number
+                  example: 12.3456
+                latitude:
+                  description: float64, range -90...90
+                  type: number
+                  example: -12.3456
+      responses:
+        '200':
+          description: successfully updated
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: string
+                    example: Your location has been updated
+
+        '400':
+          description: Incorrect input
+          content:
+            application/json:
+              schema:
+                properties:
+                  errors:
+                    description: all properties are optional, and will be shown depending which field contains the error
+                    required:
+                      - ...
+                    properties:
+                      username:
+                        type: string
+                        description: what is incorrect about the username
+                        example: Username contains forbidden characters. Only letters and numbers allowed
+                      longitude:
+                        type: string
+                        description: what is incorrect about the longitude
+                        example: Longitude is incorrect. Values within -180 and 180 allowed
+                      latitude:
+                        type: string
+                        description: what is incorrect about the latitude
+                        example: Longitude is incorrect. Values within -90 and 90 allowed

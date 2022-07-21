@@ -1,0 +1,95 @@
+openapi: 3.0.0
+
+info:
+  title: Locations service api
+  version: '1.0'
+servers:
+  - url: 'http://localhost:8001'
+    description: Development
+
+tags:
+  - name: distance
+
+paths:
+  /distance/:
+    get:
+      summary: Total distance calculated by user's locations
+      tags:
+        - distance
+      parameters:
+        - in: query
+          name: username
+          description: 4-16 symbols (a-zA-Z0-9 symbols are acceptable)
+          required: true
+          schema:
+            type: string
+            example: "User1"
+
+        - in: query
+          name: after
+          description: |
+                    Follows "gte" filter logic. ISO 8601 (RFC3339) format of datetime. 
+                    Must be greater than "before" field. Default value - 24 hours ago.
+          required: false
+          schema:
+            type: string
+            pattern: RFC(3339)
+            example: "2021-09-02T11:26:18+00:00"
+
+        - in: query
+          name: before
+          description: |
+            Follows "lte" filter logic. ISO 8601 (RFC3339) format of datetime. 
+            Must be less than "after" field. Default value - now.
+          required: false
+          schema:
+            type: string
+            pattern: RFC(3339)
+            example: "2021-09-02T11:26:18+00:00"
+
+      responses:
+        '200':
+          description: Total distance
+          content:
+            application/json:
+              schema:
+                properties:
+                  distance:
+                    type: integer
+                    example: 773
+        '400':
+          description: Incorrect input
+          content:
+            application/json:
+              schema:
+                properties:
+                  errors:
+                    description: all properties are optional, and will be shown depending which field contains the error
+                    required:
+                      - ...
+                    properties:
+                      username:
+                        type: string
+                        description: what is incorrect about username
+                        example: Username contains forbidden characters. Only letters and numbers allowed
+                      before:
+                        type: string
+                        description: what is incorrect about "before" field
+                        example: incorrect format. ISO 8601 allowed
+                      after:
+                        type: string
+                        description: what is incorrect about "after" field
+                        example: Time label 'Before' follows 'After'
+        '404':
+          description: Cannot find enough locations to calculate distance
+          content:
+            application/json:
+              schema:
+                properties:
+                  errors:
+                    properties:
+                      distance:
+                        type: string
+                        example: not enough Locations to calculate distance
+
+

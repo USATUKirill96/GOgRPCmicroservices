@@ -38,13 +38,13 @@ func ParseGetDistanceInput(r *http.Request) (GetDistanceInput, *ParseError) {
 	user := q.Get("username")
 	rawAfter := q.Get("after")
 	if rawAfter != "" {
-		// HACK: + symbol stands for space in ASCII, so we need to manually get it back
+		// HACK: "+" symbol stands for space in ASCII, so we need to manually get it back
 		// TODO: Check if gorilla mux has a solution for it
 		rawAfter = strings.Replace(rawAfter, " ", "+", 1)
 		after, err = time.Parse(time.RFC3339, rawAfter)
 		if err != nil {
 			return GetDistanceInput{},
-				&ParseError{map[string]interface{}{"after": "incorrect format. ISO 8601 allowed"}}
+				&ParseError{map[string]interface{}{"after": "Incorrect format. ISO 8601 allowed"}}
 		}
 	}
 
@@ -54,7 +54,7 @@ func ParseGetDistanceInput(r *http.Request) (GetDistanceInput, *ParseError) {
 		before, err = time.Parse(time.RFC3339, rawBefore)
 		if err != nil {
 			return GetDistanceInput{},
-				&ParseError{map[string]interface{}{"before": "incorrect format. ISO 8601 allowed"}}
+				&ParseError{map[string]interface{}{"before": "Incorrect format. ISO 8601 allowed"}}
 
 		}
 	}
@@ -71,7 +71,7 @@ func (input GetDistanceInput) Validate() map[string]string {
 		errs["username"] = "Username contains forbidden characters. Only letters and numbers allowed"
 	}
 	if input.Before.After(input.After) {
-		errs["range"] = "Time label 'Before' follows 'After'"
+		errs["after"] = "Time label 'Before' follows 'After'"
 	}
 	return errs
 }

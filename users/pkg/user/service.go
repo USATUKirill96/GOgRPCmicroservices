@@ -4,8 +4,11 @@ import (
 	pb "USATUKirill96/gridgo/protobuf"
 	"context"
 	"errors"
+	"fmt"
 	"time"
 )
+
+const UpdateLocationRetries int = 5
 
 type ServiceRepository interface {
 	ByUsername(string) (*User, error)
@@ -50,10 +53,18 @@ func (s Service) UpdateLocation(username string, longitude, latitude float64) er
 		Latitude:  latitude,
 		Longitude: longitude,
 	}
-	_, err = s.Locations.Insert(ctx, data)
-	if err != nil {
-		return err
-	}
+	go func() {
+		// Network might be unstable.
+		for i := 0; i <= UpdateLocationRetries; i++ {
+			_, err = s.Locations.Insert(ctx, data)
+			if err == nil {
+				return
+			}
+			fmt.Printf("Failed to insert location. Attempt: %v\n", i)
+			time.Sleep(2 * time.Second)
+		}
+		fmt.Println("Failed to insert location: ", data)
+	}()
 	return nil
 }
 
