@@ -6,8 +6,6 @@ import (
 	"time"
 )
 
-var CouldNotInsertLocation = errors.New("insert: could not insert location")
-
 type IServiceRepository interface {
 	Insert(location Location) (Location, error)
 	Find(string, time.Time, time.Time) ([]Location, error)
@@ -26,7 +24,7 @@ func (s Service) InsertLocation(username string, longitude, latitude float64) er
 	}
 	_, err := s.Locations.Insert(l)
 	if err != nil {
-		return CouldNotInsertLocation
+		return err
 	}
 	return nil
 }

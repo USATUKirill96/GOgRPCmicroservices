@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
@@ -29,9 +30,8 @@ func (r Repository) Insert(l Location) (Location, error) {
 	}
 
 	req := esapi.IndexRequest{
-		Index:   r.index,
-		Body:    bytes.NewReader(data),
-		Refresh: "true",
+		Index: r.index,
+		Body:  bytes.NewReader(data),
 	}
 
 	res, err := req.Do(context.Background(), r.es)
@@ -40,16 +40,8 @@ func (r Repository) Insert(l Location) (Location, error) {
 		return l, err
 	}
 	if res.IsError() {
-		log.Printf("[%s] Error indexing document", res.Status())
-	} else {
-		// Deserialize the response into a map.
-		var r map[string]interface{}
-		if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-			fmt.Printf("Error parsing the response body: %s", err)
-		} else {
-			// Print the response status and indexed document version.
-			fmt.Printf("[%s] %s; version=%d", res.Status(), r["result"], int(r["_version"].(float64)))
-		}
+		err := errors.New(fmt.Sprintf("[%s] ERROR indexing document", res.Status()))
+		return l, err
 	}
 	return l, nil
 }
@@ -86,14 +78,14 @@ func (r Repository) Find(u string, after, before time.Time) ([]Location, error) 
 		r.es.Search.WithSort("updated"),
 	)
 	if err != nil {
-		log.Fatalf("Error getting response: %s", err)
+		log.Fatalf("ERROR getting response: %s", err)
 	}
 	defer res.Body.Close()
 
 	if res.IsError() {
 		var e map[string]interface{}
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			log.Fatalf("Error parsing the response body: %s", err)
+			log.Fatalf("ERROR parsing the response body: %s", err)
 		} else {
 			// Print the response status and error information.
 			log.Fatalf("[%s] %s: %s",

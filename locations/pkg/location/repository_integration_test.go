@@ -69,14 +69,14 @@ func TestRepository_Insert(t *testing.T) {
 		r.es.Search.WithSort("updated"),
 	)
 	if err != nil {
-		log.Fatalf("Error getting response: %s", err)
+		log.Fatalf("ERROR getting response: %s", err)
 	}
 	defer es7res.Body.Close()
 
 	if es7res.IsError() {
 		var e map[string]interface{}
 		if err := json.NewDecoder(es7res.Body).Decode(&e); err != nil {
-			log.Fatalf("Error parsing the response body: %s", err)
+			log.Fatalf("ERROR parsing the response body: %s", err)
 		} else {
 			// Print the response status and error information.
 			log.Fatalf("[%s] %s: %s",

@@ -90,16 +90,16 @@ func (input GetDistanceInput) SetDefaultRange() GetDistanceInput {
 func (app Application) GetDistance(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	input, perr := ParseGetDistanceInput(r)
-	if perr != nil {
+	input, parseErrors := ParseGetDistanceInput(r)
+	if parseErrors != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]interface{}{"errors": perr.err})
+		json.NewEncoder(w).Encode(map[string]interface{}{"errors": parseErrors.err})
 		return
 	}
-	errs := input.Validate()
-	if len(errs) > 0 {
+	validationErrors := input.Validate()
+	if len(validationErrors) > 0 {
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]interface{}{"errors": errs})
+		json.NewEncoder(w).Encode(map[string]interface{}{"errors": validationErrors})
 		return
 	}
 	input = input.SetDefaultRange()
@@ -111,9 +111,9 @@ func (app Application) GetDistance(w http.ResponseWriter, r *http.Request) {
 			json.NewEncoder(w).Encode(map[string]interface{}{"errors": err})
 			return
 		}
-		fmt.Println(err)
+		app.Logger.ERROR(err, r)
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal server error"))
+		json.NewEncoder(w).Encode(map[string]interface{}{"errors": "Internal server error"})
 		return
 	}
 	json.NewEncoder(w).Encode(map[string]int{"distance": d})
