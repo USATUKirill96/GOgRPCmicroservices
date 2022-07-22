@@ -8,13 +8,11 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/elastic/go-elasticsearch/v7"
-	"github.com/gorilla/mux"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
-	"net/http"
 	"os"
 )
 
@@ -60,20 +58,6 @@ func main() {
 		Logger: logger,
 	}
 
-	// Paths
-	r := mux.NewRouter()
-	r.HandleFunc("/update", app.UpdateLocation)
-	r.HandleFunc("/users", app.FindByDistance)
-	r.Use(app.LogRequests)
-	r.Use(app.RecoverPanic)
-	http.Handle("/", r)
-
-	srv := &http.Server{
-		Handler: r,
-		Addr:    fmt.Sprintf(":%v", os.Getenv("USER_SERVICE_PORT")),
-	}
-
-	logger.INFO(fmt.Sprintf("Server started and running, port: %v", srv.Addr))
-	err = srv.ListenAndServe()
+	err = app.Serve()
 	logger.ERROR(err)
 }

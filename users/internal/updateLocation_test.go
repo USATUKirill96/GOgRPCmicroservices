@@ -35,7 +35,7 @@ func TestApplication_UpdateLocation(t *testing.T) {
 		data, _ := json.Marshal(tc)
 		r, _ := http.NewRequest(
 			"POST",
-			"http://localhost:8080/update",
+			"http://localhost:8080/location",
 			bytes.NewBuffer(data),
 		)
 		app.UpdateLocation(w, r)

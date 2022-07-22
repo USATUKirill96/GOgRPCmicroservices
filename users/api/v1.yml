@@ -9,7 +9,7 @@ servers:
 
 tags:
   - name: users
-  - name: update
+  - name: location
 
 paths:
   /users/:
@@ -66,6 +66,15 @@ paths:
                         type: string
                         description: what is incorrect about the distance
                         example: Distance must be an integer larger than zero
+                      pagination:
+                        properties:
+                          offset:
+                            type: string
+                            example: Incorrect format. Integer values allowed
+                          limit:
+                            type: string
+                            example: Incorrect format. Integer values allowed
+
 
         '404':
           description: Cannot find user
@@ -77,11 +86,11 @@ paths:
                     type: string
                     example: user doesn't exist
 
-  /update/:
+  /location/:
     post:
       summary: Update a user's location
       tags:
-        - update
+        - location
       requestBody:
         required: true
         content:

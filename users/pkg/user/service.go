@@ -45,15 +45,14 @@ func (s Service) UpdateLocation(username string, longitude, latitude float64) er
 		}
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
 	data := &pb.NewLocation{
 		Username:  u.Username,
 		Latitude:  latitude,
 		Longitude: longitude,
 	}
 	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
 		// Network might be unstable.
 		// TODO: research and implement a rollback mechanism
 		for i := 0; i < UpdateLocationRetries; i++ {

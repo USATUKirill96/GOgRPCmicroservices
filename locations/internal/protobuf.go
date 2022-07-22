@@ -7,12 +7,34 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"google.golang.org/grpc"
+	"net"
+	"os"
 )
 
 type Server struct {
 	pb.UnimplementedLocationsServer
 	LocationService location.Service
 	Logger          logging.Logger
+}
+
+func (s *Server) Serve() {
+
+	lis, err := net.Listen(
+		"tcp",
+		fmt.Sprintf(":%v", os.Getenv("LOCATION_SERVICE_GRPC")),
+	)
+
+	if err != nil {
+		s.Logger.ERROR(err)
+	}
+
+	srv := grpc.NewServer()
+	pb.RegisterLocationsServer(srv, s)
+	s.Logger.INFO(fmt.Sprintf("gRPC server listening at %v \n", lis.Addr()))
+	if err := srv.Serve(lis); err != nil {
+		s.Logger.ERROR(errors.New(fmt.Sprintf("failed to serve: %v", err)))
+	}
 }
 
 func (s *Server) Insert(_ context.Context, l *pb.NewLocation) (*pb.Empty, error) {
