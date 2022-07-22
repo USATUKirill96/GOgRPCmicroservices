@@ -5,7 +5,6 @@ import (
 	"USATUKirill96/gridgo/users/pkg/pagination"
 	"context"
 	"errors"
-	"fmt"
 	"time"
 )
 
@@ -56,15 +55,14 @@ func (s Service) UpdateLocation(username string, longitude, latitude float64) er
 	}
 	go func() {
 		// Network might be unstable.
-		for i := 0; i <= UpdateLocationRetries; i++ {
+		// TODO: research and implement a rollback mechanism
+		for i := 0; i < UpdateLocationRetries; i++ {
 			_, err = s.Locations.Insert(ctx, data)
 			if err == nil {
 				return
 			}
-			fmt.Printf("Failed to insert location. Attempt: %v\n", i)
 			time.Sleep(2 * time.Second)
 		}
-		fmt.Println("Failed to insert location: ", data)
 	}()
 	return nil
 }

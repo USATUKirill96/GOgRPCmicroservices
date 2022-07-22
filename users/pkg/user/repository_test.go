@@ -1,11 +1,10 @@
-//ago:build integration
+//go:build integration
 
 package user
 
 import (
 	"USATUKirill96/gridgo/users/pkg/pagination"
 	"database/sql"
-	"flag"
 	"fmt"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/joho/godotenv"
@@ -21,8 +20,6 @@ var fixtures = []*User{
 	&User{0, "Far1", 6.000, 3.000},   // 194.4 km
 	&User{0, "Far2", 6.000, 6.000},   // 335.7 km
 }
-
-var run = flag.Bool("integration", false, "If integral testing required")
 
 func NewTestDatabase() TestDatabase {
 
@@ -85,10 +82,6 @@ func assertUsers(u1, u2 User) (string, bool) {
 }
 
 func TestRepository_Insert(t *testing.T) {
-	if !*run {
-		fmt.Println("Skipping TestRepository_Insert")
-		return
-	}
 
 	td := NewTestDatabase()
 	r := td.NewRepository()
@@ -132,10 +125,6 @@ func TestRepository_Insert(t *testing.T) {
 }
 
 func TestRepository_ByDistance(t *testing.T) {
-	if !*run {
-		fmt.Println("Skipping TestRepository_ByDistance")
-		return
-	}
 
 	const (
 		target = iota
@@ -209,11 +198,6 @@ func TestRepository_ByDistance_pagination(t *testing.T) {
 
 func TestRepository_ByUsername(t *testing.T) {
 
-	if !*run {
-		fmt.Println("Skipping TestRepository_ByUsername")
-		return
-	}
-
 	td := NewTestDatabase()
 	r := td.NewRepository()
 	defer td.TearDown()
@@ -235,11 +219,6 @@ func TestRepository_ByUsername(t *testing.T) {
 }
 
 func TestRepository_Update(t *testing.T) {
-
-	if !*run {
-		fmt.Println("Skipping TestRepository_ByUsername")
-		return
-	}
 
 	const testedUser = 1
 	const newLongitude = 12.123321
@@ -272,5 +251,4 @@ func TestRepository_Update(t *testing.T) {
 	if u.Longitude != newLongitude {
 		t.Errorf("Incorrect data saved. Expected longitude: %v, got: %v", newLongitude, u.Longitude)
 	}
-
 }

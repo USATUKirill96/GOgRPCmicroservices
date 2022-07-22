@@ -2,7 +2,6 @@ package internal
 
 import (
 	"encoding/json"
-	"fmt"
 	"math"
 	"net/http"
 	"regexp"
@@ -57,7 +56,7 @@ func (app Application) UpdateLocation(w http.ResponseWriter, r *http.Request) {
 	err = app.UserService.UpdateLocation(input.Username, input.Longitude, input.Latitude)
 
 	if err != nil {
-		fmt.Println(err)
+		app.Logger.ERROR(err, r)
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"errors": "Internal server problem. Please try again later"})
 		return

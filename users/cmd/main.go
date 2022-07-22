@@ -2,10 +2,12 @@ package main
 
 import (
 	pb "USATUKirill96/gridgo/protobuf"
+	"USATUKirill96/gridgo/tools/logging"
 	"USATUKirill96/gridgo/users/internal"
 	"USATUKirill96/gridgo/users/pkg/user"
 	"database/sql"
 	"fmt"
+	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/gorilla/mux"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/joho/godotenv"
@@ -23,6 +25,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	cfg := elasticsearch.Config{Addresses: []string{os.Getenv("ELASTICSEARCH_URL")}}
+	es, err := elasticsearch.NewClient(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	logger := logging.NewLogger(es)
 
 	// GRPC client setup
 	conn, err := grpc.Dial(
@@ -44,13 +53,19 @@ func main() {
 	userRepository := user.NewRepository(db)
 
 	app := internal.Application{
-		UserService: user.Service{Users: &userRepository, Locations: locations},
+		UserService: user.Service{
+			Users:     &userRepository,
+			Locations: locations,
+		},
+		Logger: logger,
 	}
 
 	// Paths
 	r := mux.NewRouter()
 	r.HandleFunc("/update", app.UpdateLocation)
 	r.HandleFunc("/users", app.FindByDistance)
+	r.Use(app.LogRequests)
+	r.Use(app.RecoverPanic)
 	http.Handle("/", r)
 
 	srv := &http.Server{
@@ -58,7 +73,7 @@ func main() {
 		Addr:    fmt.Sprintf(":%v", os.Getenv("USER_SERVICE_PORT")),
 	}
 
-	fmt.Println("Server started and running")
+	logger.INFO(fmt.Sprintf("Server started and running, port: %v", srv.Addr))
 	err = srv.ListenAndServe()
-	fmt.Println(err)
+	logger.ERROR(err)
 }

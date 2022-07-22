@@ -17,6 +17,7 @@ type record struct {
 	Level     string `json:"level"` // ERROR/INFO
 	Timestamp string `json:"timestamp"`
 	Method    string `json:"method"` // GET/POST/UPDATE/DELETE
+	Host      string `json:"host"`
 	Params    string `json:"params"`
 	Body      string `json:"body"`
 	URL       string `json:"url"`
@@ -33,6 +34,7 @@ func newRecord(level, message string, r *http.Request) record {
 	if r != nil {
 		record.Method = r.Method
 		record.URL = r.URL.Path
+		record.Host = r.Host
 		record.Params = r.URL.Query().Encode()
 		record.Source = r.RemoteAddr
 		if r.Method == "POST" {

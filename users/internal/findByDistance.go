@@ -5,7 +5,6 @@ import (
 	"USATUKirill96/gridgo/users/pkg/user"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -85,7 +84,7 @@ func (app Application) FindByDistance(w http.ResponseWriter, r *http.Request) {
 			json.NewEncoder(w).Encode(map[string]interface{}{"errors": "User doesn't exist"})
 			return
 		}
-		fmt.Println(err)
+		app.Logger.ERROR(err, r)
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]interface{}{"errors": "Internal error. Please try again later"})
 		return
