@@ -14,7 +14,7 @@ type Application struct {
 
 func (app Application) LogRequests(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		app.Logger.INFO("Incoming request", r)
+		app.Logger.INFO("", r)
 		next.ServeHTTP(w, r)
 	})
 }

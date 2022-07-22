@@ -2,6 +2,7 @@ package user
 
 import (
 	pb "USATUKirill96/gridgo/protobuf"
+	"USATUKirill96/gridgo/users/pkg/pagination"
 	"context"
 	"errors"
 	"fmt"
@@ -12,7 +13,7 @@ const UpdateLocationRetries int = 5
 
 type ServiceRepository interface {
 	ByUsername(string) (*User, error)
-	ByDistance(User, int) ([]*User, error)
+	ByDistance(User, int, pagination.Pagination) ([]*User, error)
 	Insert(User) (*User, error)
 	Update(User) (*User, error)
 }
@@ -68,11 +69,11 @@ func (s Service) UpdateLocation(username string, longitude, latitude float64) er
 	return nil
 }
 
-func (s Service) FindByDistance(username string, distance int) ([]*User, error) {
+func (s Service) FindByDistance(username string, distance int, pg pagination.Pagination) ([]*User, error) {
 	u, err := s.Users.ByUsername(username)
 	if err != nil {
 		return nil, err
 	}
-	neighbors, err := s.Users.ByDistance(*u, distance)
+	neighbors, err := s.Users.ByDistance(*u, distance, pg)
 	return neighbors, err
 }

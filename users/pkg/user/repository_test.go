@@ -1,8 +1,9 @@
-//go:build integration
+//ago:build integration
 
 package user
 
 import (
+	"USATUKirill96/gridgo/users/pkg/pagination"
 	"database/sql"
 	"flag"
 	"fmt"
@@ -162,7 +163,7 @@ func TestRepository_ByDistance(t *testing.T) {
 
 	for _, tc := range cases {
 		// perform logic
-		result, err := r.ByDistance(*fixtures[target], tc.distance)
+		result, err := r.ByDistance(*fixtures[target], tc.distance, pagination.Pagination{})
 		if err != nil {
 			t.Error(err)
 		}
@@ -172,6 +173,38 @@ func TestRepository_ByDistance(t *testing.T) {
 			t.Errorf("Incorrect length of result: expected %v, got %v", len(tc.expected), len(result))
 		}
 	}
+}
+func TestRepository_ByDistance_pagination(t *testing.T) {
+
+	td := NewTestDatabase()
+	r := td.NewRepository()
+	defer td.TearDown()
+
+	td.Setup()
+
+	for i := 0; i < 15; i++ {
+		r.Insert(User{0, fmt.Sprintf("ByDistance%v", i), 4.3191, 3.4815})
+	}
+
+	cases := []struct {
+		pg       pagination.Pagination
+		expected int
+	}{
+		{pagination.Pagination{Limit: 5, Offset: 0}, 5},  // Limit
+		{pagination.Pagination{Limit: 0, Offset: 10}, 5}, // Offset
+		{pagination.Pagination{Limit: 0, Offset: 35}, 0}, // Offset is too large
+		{pagination.Pagination{}, 15},                    // Empty pagination
+	}
+	for _, tc := range cases {
+		res, err := r.ByDistance(*fixtures[0], 5, tc.pg)
+		if err != nil {
+			t.Error(err)
+		}
+		if len(res) != tc.expected {
+			t.Errorf("Unexpected number of results. Expected: %v, got: %v", tc.expected, len(res))
+		}
+	}
+
 }
 
 func TestRepository_ByUsername(t *testing.T) {

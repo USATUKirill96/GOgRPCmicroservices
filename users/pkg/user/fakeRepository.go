@@ -2,6 +2,7 @@ package user
 
 import (
 	"USATUKirill96/gridgo/locations/pkg/location"
+	"USATUKirill96/gridgo/users/pkg/pagination"
 	"sync"
 )
 
@@ -55,7 +56,8 @@ func (r *FakeRepository) ByUsername(username string) (*User, error) {
 	return &user, nil
 }
 
-func (r *FakeRepository) ByDistance(tgu User, dst int) ([]*User, error) {
+func (r *FakeRepository) ByDistance(tgu User, dst int, pg pagination.Pagination) ([]*User, error) {
+
 	var matches []*User
 	for _, u := range r.users {
 		d := location.Distance{
@@ -66,6 +68,17 @@ func (r *FakeRepository) ByDistance(tgu User, dst int) ([]*User, error) {
 		}
 		if d.Meters() <= float64(dst*1000) && u.Username != tgu.Username {
 			matches = append(matches, &u)
+		}
+	}
+	if pg.Offset != 0 {
+		if pg.Offset > len(matches) {
+			matches = []*User{}
+		}
+		matches = matches[pg.Offset-1:]
+	}
+	if pg.Limit != 0 {
+		if pg.Limit < len(matches) {
+			matches = matches[:pg.Limit]
 		}
 	}
 	return matches, nil

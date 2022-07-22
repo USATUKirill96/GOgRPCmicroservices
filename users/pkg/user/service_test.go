@@ -4,6 +4,7 @@ package user
 
 import (
 	"USATUKirill96/gridgo/users/pkg/location"
+	"USATUKirill96/gridgo/users/pkg/pagination"
 	"log"
 	"testing"
 )
@@ -105,7 +106,7 @@ func TestService_FindByDistance(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		result, err := service.FindByDistance(userServiceTestUser.Username, tc.distance)
+		result, err := service.FindByDistance(userServiceTestUser.Username, tc.distance, pagination.Pagination{})
 		if err != nil {
 			t.Error(err)
 		}

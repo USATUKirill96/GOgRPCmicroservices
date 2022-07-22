@@ -108,7 +108,7 @@ func (app Application) GetDistance(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, location.NotEnoughLocations) {
 			w.WriteHeader(http.StatusNotFound)
-			json.NewEncoder(w).Encode(map[string]interface{}{"errors": err})
+			json.NewEncoder(w).Encode(map[string]interface{}{"errors": "Not enough locations to calculate distance"})
 			return
 		}
 		app.Logger.ERROR(err, r)

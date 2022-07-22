@@ -1,8 +1,10 @@
 package user
 
 import (
+	"USATUKirill96/gridgo/users/pkg/pagination"
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 func NewRepository(db *sql.DB) Repository { return Repository{db} }
@@ -63,7 +65,7 @@ func (r Repository) ByUsername(username string) (*User, error) {
 	return u, nil
 }
 
-func (r Repository) ByDistance(tgu User, dst int) ([]*User, error) {
+func (r Repository) ByDistance(tgu User, dst int, pg pagination.Pagination) ([]*User, error) {
 	stmt := `
 	SELECT id, username, longitude, latitude 
 	  FROM (
@@ -80,6 +82,12 @@ func (r Repository) ByDistance(tgu User, dst int) ([]*User, error) {
 	where distance < $3 AND NOT username = $4
 	ORDER BY distance
 `
+	if pg.Offset != 0 {
+		stmt += fmt.Sprintf("\n OFFSET %v", pg.Offset)
+	}
+	if pg.Limit != 0 {
+		stmt += fmt.Sprintf("\n LIMIT %v", pg.Limit)
+	}
 	rows, err := r.db.Query(stmt, tgu.Longitude, tgu.Latitude, dst, tgu.Username)
 	if err != nil {
 		return nil, err

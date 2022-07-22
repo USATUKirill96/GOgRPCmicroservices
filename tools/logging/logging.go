@@ -66,7 +66,9 @@ func (l Logger) insert(r record) {
 }
 
 func (l Logger) new(level string, message string, r ...*http.Request) {
-	fmt.Println(message)
+	if message != "" {
+		fmt.Println(message)
+	}
 	var request *http.Request
 	if len(r) > 0 {
 		request = r[0]
