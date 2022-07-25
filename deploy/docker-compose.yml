@@ -15,8 +15,40 @@ services:
       - kibana7
       - adminer
 
+  locations:
+    restart: always
+    container_name: locations
+    build:
+      context: ../
+      dockerfile: locations/deploy/Dockerfile
+    environment:
+      ELASTICSEARCH_URL: http://es7:9200/
+    ports:
+      - "8001:8001"
+    depends_on:
+      - es7
+      - db
+
+  users:
+    restart: always
+    container_name: users
+    build:
+      context: ../
+      dockerfile: users/deploy/Dockerfile
+    environment:
+      ELASTICSEARCH_URL: http://es7:9200/
+      POSTGRES_DB_URL: postgres://lol:kek@db:5432/users
+      LOCATION_SERVICE_GRPC: locations:8002
+    ports:
+      - "8000:8000"
+    depends_on:
+      - es7
+      - db
+      - locations
+
+# The same es7 used for locations and logging just for the study purpose. In a real application it must be two storages
   es7:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
     container_name: es7
     environment:
       - discovery.type=single-node
@@ -24,16 +56,25 @@ services:
       - "8003:9200"
     volumes:
       - locations-es7:/usr/share/elasticsearch
+    healthcheck:
+      test: [ “CMD”, “curl”,”-s” ,”-f”, “http://localhost:9200/_cat/health” ]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
 
   kibana7:
     image: docker.elastic.co/kibana/kibana:7.3.1
     environment:
       ELASTICSEARCH_HOSTS: http://es7:9200/
+    depends_on:
+      - es7
+
     ports:
       - "8004:5601"
 
   db:
     image: postgres
+    container_name: db
     restart: always
     volumes:
       - users-postgres:/var/lib/postgresql

@@ -11,6 +11,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v7/esutil"
 	"io"
 	"log"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -78,21 +79,23 @@ func (r Repository) Find(u string, after, before time.Time) ([]Location, error) 
 		r.es.Search.WithSort("updated"),
 	)
 	if err != nil {
-		log.Fatalf("ERROR getting response: %s", err)
+		return nil, err
 	}
 	defer res.Body.Close()
 
 	if res.IsError() {
 		var e map[string]interface{}
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			log.Fatalf("ERROR parsing the response body: %s", err)
+			return nil, err
 		} else {
-			// Print the response status and error information.
-			log.Fatalf("[%s] %s: %s",
+			if e["status"].(float64) == http.StatusNotFound {
+				return nil, NotEnoughLocations
+			}
+			return nil, errors.New(fmt.Sprintf("[%s] %s: %s",
 				res.Status(),
 				e["error"].(map[string]interface{})["type"],
 				e["error"].(map[string]interface{})["reason"],
-			)
+			))
 		}
 	}
 	buf := new(strings.Builder)

@@ -33,7 +33,7 @@ func main() {
 
 	// GRPC client setup
 	conn, err := grpc.Dial(
-		fmt.Sprintf(":%v", os.Getenv("LOCATION_SERVICE_GRPC")),
+		fmt.Sprintf("%v", os.Getenv("LOCATION_SERVICE_GRPC")),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {

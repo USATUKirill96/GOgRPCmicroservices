@@ -20,3 +20,6 @@ test-integration:
 
 dev-services:
 	docker-compose -f deploy/docker-compose.yml up required monitoring -d
+
+release:
+	docker-compose -f deploy/docker-compose.yml up users locations --build

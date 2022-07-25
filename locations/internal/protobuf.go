@@ -22,7 +22,7 @@ func (s *Server) Serve() {
 
 	lis, err := net.Listen(
 		"tcp",
-		fmt.Sprintf(":%v", os.Getenv("LOCATION_SERVICE_GRPC")),
+		fmt.Sprintf("%v", os.Getenv("LOCATION_SERVICE_GRPC")),
 	)
 
 	if err != nil {
